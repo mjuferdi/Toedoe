@@ -12,7 +12,6 @@
         <!--Toedoe-->
         <scene sceneID="Ix2-pf-6rm">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="i7O-Fb-KLJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tableViewController id="xed-lt-5ny" customClass="TodoListViewController" customModule="Toedoe" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="zPI-4f-KEc">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
@@ -33,8 +32,16 @@
                             <outlet property="delegate" destination="xed-lt-5ny" id="5M4-AD-i0v"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Toedoe" id="zmW-Sj-LzF"/>
+                    <navigationItem key="navigationItem" title="Toedoe" id="zmW-Sj-LzF">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="ZjZ-32-SKy">
+                            <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <connections>
+                                <action selector="addButtonPressed:" destination="xed-lt-5ny" id="rfW-Ht-Xc8"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="i7O-Fb-KLJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1748" y="133.5832083958021"/>
         </scene>
@@ -48,7 +55,8 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="barTintColor" red="1" green="0.57810515169999999" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <textAttributes key="titleTextAttributes">
-                            <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="26"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </textAttributes>
                     </navigationBar>
                     <nil name="viewControllers"/>
