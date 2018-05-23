@@ -7,10 +7,8 @@
 //
 
 import Foundation
-
-class Item {
-    
+//A type can encode end decode to an external representation
+class Item: Codable {
     var tittle : String = ""
     var done : Bool = false
-
 }
