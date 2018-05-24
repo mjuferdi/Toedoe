@@ -12,6 +12,7 @@ import RealmSwift
 class Category: Object {
     // TODO: 2. [Realm] Create new swift file, create data model
     @objc dynamic var name: String = ""
+    @objc dynamic var bgColor: String = ""
     // Defined to-many relationship. Forward relationship
     let items = List<Item>()
 }
