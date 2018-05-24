@@ -7,60 +7,70 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
-    //Create new own file .plist at local storage (Sandbox) from the app.
-    //Use the code in order to encode and decode data to a pre-specified file path
-    //Converted array of item [Item] in to a .plist
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-
+    var selectedCategory : Category? {
+        // Specify what should happen when a variable gets set with a new value
+        didSet{
+            loadItems()
+        }
+    }
+    // TODO: 2 Getting the shared singleton object which corresponds to the current app as an object tapping
+    // Have access to our app delegate as an object. Able access a singleton and delegate the property
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        loadItems()
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
     }
     
-    //MARK: - Tableview Datasource Methods
-    
+    // MARK: - Tableview Datasource Methods
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //Use Prototype Cell on storyboard
+        // Use Prototype Cell on storyboard
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         let item = itemArray[indexPath.row]
-        
-        cell.textLabel?.text = item.tittle
+        cell.textLabel?.text = item.title
         cell.accessoryType = item.done ? .checkmark : .none
-        return cell
         
+        return cell
     }
     
-    //MARK: - TableView Delegate Methods
+    // MARK: - TableView Delegate Methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        /** Updating Data with Core Data **
+        itemArray[indexPath.row].setValue("Completed", forKey: "title")
+        */
         
+        /** Destroying Data with Core Data **
+        context.delete(itemArray[indexPath.row])
+        itemArray.remove(at: indexPath.row)*/
+
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         saveItems()
         tableView.deselectRow(at: indexPath, animated: true)
         
     }
     
-    //MARK: - Add New Items
-    
+    // MARK: - Add New Items
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField()
 
         let alert = UIAlertController(title: "Add New Toedoe Item", message: "", preferredStyle: .alert)
+        
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            
-            //What will happen once the user click the Add Item button on our UIAlert
-            let newItem = Item()
-            newItem.tittle = textField.text!
-            
+            // What will happen once the user click the Add Item button on our UIAlert
+            // TODO: 3. Creating Data with Data Core
+            let newItem = Item(context: self.context)
+            newItem.title = textField.text!
+            newItem.done = false
+            newItem.parentCategory = self.selectedCategory
             self.itemArray.append(newItem)
             self.saveItems()
         }
@@ -70,35 +80,68 @@ class TodoListViewController: UITableViewController {
             textField = alertTextField
             
         }
+        
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }
     
-    //MARK: - Model Manipulation Methods
+    // TODO: 4
+    // MARK: - Model Manipulation Methods
     func saveItems() {
-        //Write and save custom data object into persisted storage (Item.plist)
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(self.itemArray)
-            try data.write(to: self.dataFilePath!)
+            try context.save()
         } catch {
-            print("Error encoding item array, \(error)")
+            print("Error saving context, \(error)")
         }
         
-        //Refresh Table View
+        // Refresh Table View
         self.tableView.reloadData()
     }
     
-    func loadItems() {
-        //Load custom data object from Item.plist
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-            itemArray = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("Error decoding item array, \(error)")
+    // Use external parameter with: and internal parameter request: and default values
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        // Pass two parameter and check additionalPredicate not nil
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
+        
+        // TODO: 5. Reading item from Core Data. Data out needs to be specify
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetching data from context, \(error)")
+        }
+        
+        tableView.reloadData()
+    }
+}
+
+// MARK: - Implement Search Bar Methods
+// Using extension to seperate out functionality
+extension TodoListViewController: UISearchBarDelegate {
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+
+        loadItems(with: request, predicate: predicate)
+    }
+    
+    // Finish write on search bar, change condition to the first view
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+            // Being run in the background
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
             }
         }
     }
 }
+
 
