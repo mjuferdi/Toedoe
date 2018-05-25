@@ -2,7 +2,7 @@
 
 A simple todo list app built in Swift 4 in iOS 11
 
-![simulator screen shot - iphone 8 - 2018-05-25 at 15 09 39_iphone8spacegrey_portrait](https://user-images.githubusercontent.com/19746283/40547894-711885f0-6033-11e8-981e-bcf9319b1f57.png)
+![iphone-mockup](https://user-images.githubusercontent.com/19746283/40549444-bbacf32c-6037-11e8-9a25-1483e864ae80.png)
 
 
 ## Built With
